@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TelhaTech IA</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0d1b2a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #1b263b;
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      margin: 0;
+      color: #ff7b00;
+    }
+
+    p {
+      margin-top: 5px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    input[type="file"] {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #ff7b00;
+      border: none;
+      padding: 15px;
+      width: 100%;
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #ff9500;
+    }
+
+    .result {
+      margin-top: 20px;
+      background: #0d1b2a;
+      padding: 15px;
+      border-radius: 12px;
+      display: none;
+    }
+  </style>
+
+</head>
+<body>
+
+<div class="container">
+
+  <h1>TelhaTech IA</h1>
+  <p>Inteligência em Telhados</p>
+
+  <input type="file" id="imageInput">
+
+  <button onclick="analisar()">Analisar</button>
+
+  <div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+async function analisar() {
+
+  const fileInput = document.getElementById("imageInput");
+  const resultDiv = document.getElementById("result");
+
+  if (!fileInput.files.length) {
+    alert("Selecione uma imagem primeiro.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  resultDiv.style.display = "block";
+  resultDiv.innerHTML = "Analisando...";
+
+  try {
+
+    const response = await fetch("https://api-telhados.onrender.com/predict", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    let materiais = "";
+
+    for (const [tipo, quantidade] of Object.entries(data.por_material)) {
+      materiais += tipo + ": " + quantidade + "<br>";
+    }
+
+    resultDiv.innerHTML = `
+      <strong>Total de Telhados:</strong> ${data.total_telhados} <br><br>
+      <strong>Detalhes:</strong><br>
+      ${materiais}
+    `;
+
+  } catch (error) {
+
+    resultDiv.innerHTML = "Erro ao conectar com a API.";
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
