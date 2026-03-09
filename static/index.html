@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+<title>TelhaTech IA</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0B1F3A;
+color:white;
+margin:0;
+}
+
+header{
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+font-size:28px;
+font-weight:bold;
+}
+
+.logo{
+color:#FF7A00;
+margin-right:10px;
+}
+
+.container{
+display:flex;
+justify-content:center;
+gap:40px;
+margin-top:40px;
+flex-wrap:wrap;
+}
+
+.card{
+background:#1E3A5F;
+padding:30px;
+border-radius:12px;
+width:420px;
+box-shadow:0px 10px 30px rgba(0,0,0,0.4);
+}
+
+.upload{
+border:2px dashed #FF7A00;
+padding:40px;
+text-align:center;
+border-radius:10px;
+cursor:pointer;
+}
+
+button{
+background:#FF7A00;
+border:none;
+padding:12px 30px;
+border-radius:8px;
+font-size:16px;
+color:white;
+margin-top:20px;
+cursor:pointer;
+}
+
+button:hover{
+background:#ff8c1a;
+}
+
+.result{
+margin-top:20px;
+font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<span class="logo">🏠</span> TelhaTech IA
+
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h2>Enviar imagem</h2>
+
+<input type="file" id="image">
+
+<br>
+
+<button onclick="enviar()">Analisar</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>Resultado da Análise</h2>
+
+<div class="result" id="resultado">
+
+Aguardando imagem...
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+async function enviar(){
+
+let file=document.getElementById("image").files[0]
+
+let formData=new FormData()
+
+formData.append("file",file)
+
+let res=await fetch("/predict",{
+method:"POST",
+body:formData
+})
+
+let data=await res.json()
+
+document.getElementById("resultado").innerHTML=
+
+`Total de telhados: ${data.total} <br><br>
+
+Cerâmica: ${data.ceramica} <br>
+
+Brasilit: ${data.brasilit}`
+
+}
+
+</script>
+
+</body>
+
+</html>
