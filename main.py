@@ -1,33 +1,34 @@
 from fastapi import FastAPI, UploadFile, File
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from ultralytics import YOLO
 from PIL import Image
-import shutil
+import io
 
 app = FastAPI()
 
-# carregar modelo
+# carregar o modelo apenas uma vez
 model = YOLO("best.pt")
 
-# pasta static
+# permitir acessar arquivos da pasta static
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# abrir interface
+
+# rota da página inicial
 @app.get("/")
 def home():
     return FileResponse("static/index.html")
 
 
+# rota para análise da imagem
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
 
-    caminho = f"temp_{file.filename}"
+    contents = await file.read()
 
-    with open(caminho, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    image = Image.open(io.BytesIO(contents))
 
-    results = model(caminho)
+    results = model(image)
 
     total = 0
     ceramica = 0
@@ -39,7 +40,8 @@ async def predict(file: UploadFile = File(...)):
 
             if int(c) == 0:
                 ceramica += 1
-            elif int(c) == 1:
+
+            if int(c) == 1:
                 brasilit += 1
 
     return {
