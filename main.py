@@ -15,7 +15,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # rota da página inicial
-@app.get("/")
+@app.api_route("/", methods=["GET","HEAD"])
 def home():
     return FileResponse("static/index.html")
 
