@@ -1,76 +1,94 @@
 <!DOCTYPE html>
-<html lang="pt">
-
+<html lang="pt-BR">
 <head>
 
 <meta charset="UTF-8">
-<title>TelhaTech IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TelhaTech AI</title>
+
+<link rel="manifest" href="/static/manifest.json">
 
 <style>
 
 body{
-font-family:Arial;
-background:#0B1F3A;
+font-family: Arial, sans-serif;
+background:#0f172a;
 color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 margin:0;
 }
 
-header{
-display:flex;
-align-items:center;
-justify-content:center;
-padding:20px;
-font-size:28px;
-font-weight:bold;
+.container{
+background:#1e293b;
+padding:40px;
+border-radius:16px;
+text-align:center;
+width:90%;
+max-width:420px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
 .logo{
-color:#FF7A00;
-margin-right:10px;
+width:90px;
+margin-bottom:15px;
 }
 
-.container{
-display:flex;
-justify-content:center;
-gap:40px;
-margin-top:40px;
-flex-wrap:wrap;
+h1{
+color:#f97316;
+margin-bottom:10px;
 }
 
-.card{
-background:#1E3A5F;
-padding:30px;
-border-radius:12px;
-width:420px;
-box-shadow:0px 10px 30px rgba(0,0,0,0.4);
+p{
+color:#cbd5f5;
+font-size:14px;
+margin-bottom:20px;
 }
 
 .upload{
-border:2px dashed #FF7A00;
-padding:40px;
-text-align:center;
-border-radius:10px;
+border:2px dashed #f97316;
+padding:30px;
+border-radius:12px;
 cursor:pointer;
+transition:0.3s;
+}
+
+.upload:hover{
+background:#334155;
 }
 
 button{
-background:#FF7A00;
-border:none;
-padding:12px 30px;
-border-radius:8px;
-font-size:16px;
-color:white;
 margin-top:20px;
+background:#f97316;
+border:none;
+padding:14px;
+border-radius:8px;
+color:white;
+font-size:16px;
 cursor:pointer;
+width:100%;
 }
 
 button:hover{
-background:#ff8c1a;
+background:#ea580c;
 }
 
-.result{
+.install{
+margin-top:15px;
+background:#2563eb;
+}
+
+.install:hover{
+background:#1d4ed8;
+}
+
+.preview{
 margin-top:20px;
-font-size:18px;
+max-width:100%;
+border-radius:10px;
 }
 
 </style>
@@ -79,70 +97,65 @@ font-size:18px;
 
 <body>
 
-<header>
-
-<span class="logo">🏠</span> TelhaTech IA
-
-</header>
-
 <div class="container">
 
-<div class="card">
+<img src="/static/icon.png" class="logo">
 
-<h2>Enviar imagem</h2>
+<h1>TelhaTech AI</h1>
 
-<input type="file" id="image">
+<p>Detecção inteligente de danos em telhados</p>
 
-<br>
+<form action="/predict" method="post" enctype="multipart/form-data">
 
-<button onclick="enviar()">Analisar</button>
+<label class="upload">
+<input type="file" name="file" id="fileInput" hidden required>
+Clique para enviar uma imagem
+</label>
 
-</div>
+<button type="submit">
+Analisar Telhado
+</button>
 
+</form>
 
-<div class="card">
+<img id="preview" class="preview">
 
-<h2>Resultado da Análise</h2>
-
-<div class="result" id="resultado">
-
-Aguardando imagem...
-
-</div>
-
-</div>
+<button id="installBtn" class="install" style="display:none">
+Instalar Aplicativo
+</button>
 
 </div>
 
 <script>
 
-async function enviar(){
+const fileInput = document.getElementById("fileInput");
+const preview = document.getElementById("preview");
 
-let file=document.getElementById("image").files[0]
+document.querySelector(".upload").onclick = () => fileInput.click();
 
-let formData=new FormData()
+fileInput.onchange = e => {
+preview.src = URL.createObjectURL(e.target.files[0]);
+};
 
-formData.append("file",file)
+let deferredPrompt;
 
-let res=await fetch("/predict",{
-method:"POST",
-body:formData
-})
+window.addEventListener("beforeinstallprompt", e => {
+e.preventDefault();
+deferredPrompt = e;
+document.getElementById("installBtn").style.display="block";
+});
 
-let data=await res.json()
+document.getElementById("installBtn").onclick = async () => {
+if(deferredPrompt){
+deferredPrompt.prompt();
+}
+};
 
-document.getElementById("resultado").innerHTML=
-
-`Total de telhados: ${data.total} <br><br>
-
-Cerâmica: ${data.ceramica} <br>
-
-Brasilit: ${data.brasilit}`
-
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("/static/sw.js");
 }
 
 </script>
 
 </body>
-
 </html>
