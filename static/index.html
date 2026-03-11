@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
 
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -91,8 +91,13 @@ max-width:100%;
 border-radius:10px;
 }
 
-</style>
+#resultado{
+margin-top:20px;
+font-size:18px;
+color:white;
+}
 
+</style>
 </head>
 
 <body>
@@ -103,12 +108,12 @@ border-radius:10px;
 
 <h1>TelhaTech AI</h1>
 
-<p>Detecção inteligente de danos em telhados</p>
+<p>Detecção inteligente de telhados com IA</p>
 
-<form action="/predict" method="post" enctype="multipart/form-data">
+<form id="formulario">
 
 <label class="upload">
-<input type="file" name="file" id="fileInput" hidden required>
+<input type="file" id="fileInput" hidden required>
 Clique para enviar uma imagem
 </label>
 
@@ -120,11 +125,13 @@ Analisar Telhado
 
 <img id="preview" class="preview">
 
+<div id="resultado"></div>
+
 <button id="installBtn" class="install" style="display:none">
 Instalar Aplicativo
 </button>
 
-</div>
+</div> 
 
 <script>
 
@@ -133,22 +140,55 @@ const preview = document.getElementById("preview");
 
 document.querySelector(".upload").onclick = () => fileInput.click();
 
-fileInput.onchange = e => {
+fileInput.onchange = function(e){
 preview.src = URL.createObjectURL(e.target.files[0]);
 };
 
-let deferredPrompt;
+const form = document.getElementById("formulario");
 
-window.addEventListener("beforeinstallprompt", e => {
+form.addEventListener("submit", async function(e){
+
 e.preventDefault();
-deferredPrompt = e;
-document.getElementById("installBtn").style.display="block";
+
+const file = fileInput.files[0];
+
+let formData = new FormData();
+formData.append("file", file);
+
+document.getElementById("resultado").innerHTML = "Analisando imagem...";
+
+const resposta = await fetch("/predict",{
+method:"POST",
+body:formData
 });
 
-document.getElementById("installBtn").onclick = async () => {
+const dados = await resposta.json();
+
+document.getElementById("resultado").innerHTML =
+"Total de telhados: " + dados["Total de telhados"] + "<br>" +
+"Telhados de cerâmica: " + dados["Telhados de cerâmica"] + "<br>" +
+"Telhados de brasilit: " + dados["Telhados de brasilit"];
+
+});
+
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", function(e){
+
+e.preventDefault();
+
+deferredPrompt = e;
+
+document.getElementById("installBtn").style.display="block";
+
+});
+
+document.getElementById("installBtn").onclick = async function(){
+
 if(deferredPrompt){
 deferredPrompt.prompt();
 }
+
 };
 
 if("serviceWorker" in navigator){
