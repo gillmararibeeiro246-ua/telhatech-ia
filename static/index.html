@@ -1,199 +1,244 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
 
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>TelhaTech AI</title>
-
-<link rel="manifest" href="/static/manifest.json">
 
 <style>
 
 body{
-font-family: Arial, sans-serif;
-background:#0f172a;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
 margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#020c25;
+color:white;
 }
 
-.container{
-background:#1e293b;
-padding:40px;
-border-radius:16px;
-text-align:center;
-width:90%;
-max-width:420px;
-box-shadow:0 10px 30px rgba(0,0,0,0.5);
+/* layout geral */
+
+.app{
+display:flex;
+height:100vh;
 }
 
-.logo{
-width:90px;
-margin-bottom:15px;
+/* menu lateral */
+
+.sidebar{
+width:220px;
+background:#0a1f44;
+padding:20px;
+display:flex;
+flex-direction:column;
 }
 
-h1{
-color:#f97316;
-margin-bottom:10px;
-}
-
-p{
-color:#cbd5f5;
-font-size:14px;
+.sidebar h2{
+color:#ff7a00;
 margin-bottom:20px;
 }
 
-.upload{
-border:2px dashed #f97316;
-padding:30px;
-border-radius:12px;
-cursor:pointer;
-transition:0.3s;
-}
-
-.upload:hover{
-background:#334155;
-}
-
-button{
-margin-top:20px;
-background:#f97316;
+.sidebar button{
+background:none;
 border:none;
-padding:14px;
-border-radius:8px;
 color:white;
+padding:12px;
+text-align:left;
 font-size:16px;
 cursor:pointer;
-width:100%;
+border-radius:8px;
+margin-bottom:8px;
 }
 
-button:hover{
-background:#ea580c;
+.sidebar button:hover{
+background:#ff7a00;
 }
 
-.install{
-margin-top:15px;
-background:#2563eb;
+/* área de conteúdo */
+
+.conteudo{
+flex:1;
+padding:40px;
 }
 
-.install:hover{
-background:#1d4ed8;
+/* páginas */
+
+.pagina{
+display:none;
+background:#02143a;
+padding:30px;
+border-radius:15px;
+max-width:600px;
 }
 
-.preview{
-margin-top:20px;
-max-width:100%;
+#analise{
+display:block;
+}
+
+/* botão */
+
+.botao{
+background:#ff7a00;
+border:none;
+padding:12px;
+color:white;
+font-size:16px;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+}
+
+.botao:hover{
+background:#e56d00;
+}
+
+/* histórico */
+
+#listaHistorico img{
+width:150px;
+margin:10px;
 border-radius:10px;
 }
 
-#resultado{
-margin-top:20px;
-font-size:18px;
-color:white;
-}
-
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
+<div class="app">
 
-<img src="/static/icon.png" class="logo">
+<!-- MENU LATERAL -->
+
+<div class="sidebar">
+
+<h2>TelhaTech</h2>
+
+<button onclick="abrirPagina('analise')">🔍 Analisar</button>
+
+<button onclick="abrirPagina('historico')">🕘 Histórico</button>
+
+<button onclick="abrirPagina('sobre')">ℹ️ Sobre</button>
+
+</div>
+
+<!-- CONTEÚDO -->
+
+<div class="conteudo">
+
+<!-- ANALISAR -->
+
+<div id="analise" class="pagina">
 
 <h1>TelhaTech AI</h1>
 
-<p>Detecção inteligente de telhados com IA</p>
+<p>Análise inteligente de telhados com Inteligência Artificial</p>
 
-<form id="formulario">
+<input type="file" id="fileInput">
 
-<label class="upload">
-<input type="file" id="fileInput" hidden required>
-Clique para enviar uma imagem
-</label>
+<br><br>
 
-<button type="submit">
-Analisar Telhado
-</button>
+<button class="botao" onclick="enviarImagem()">Analisar Telhado</button>
 
-</form>
+<br><br>
 
-<img id="preview" class="preview">
+<img id="resultado" style="max-width:100%">
 
-<div id="resultado"></div>
+</div>
 
-<button id="installBtn" class="install" style="display:none">
-Instalar Aplicativo
-</button>
+<!-- HISTÓRICO -->
 
-</div> 
+<div id="historico" class="pagina">
+
+<h2>Histórico de análises</h2>
+
+<div id="listaHistorico"></div>
+
+</div>
+
+<!-- SOBRE -->
+
+<div id="sobre" class="pagina">
+
+<h2>Sobre</h2>
+
+<p>O TelhaTech AI utiliza visão computacional para detectar tipos de telhados automaticamente.</p>
+
+</div>
+
+</div>
+
+</div>
 
 <script>
 
-const fileInput = document.getElementById("fileInput");
-const preview = document.getElementById("preview");
+/* trocar abas */
 
-document.querySelector(".upload").onclick = () => fileInput.click();
+function abrirPagina(nome){
 
-fileInput.onchange = function(e){
-preview.src = URL.createObjectURL(e.target.files[0]);
-};
+const paginas = document.querySelectorAll(".pagina")
 
-const form = document.getElementById("formulario");
+paginas.forEach(function(p){
+p.style.display="none"
+})
 
-form.addEventListener("submit", async function(e){
+document.getElementById(nome).style.display="block"
 
-e.preventDefault();
+}
 
-const file = fileInput.files[0];
+/* enviar imagem */
 
-let formData = new FormData();
-formData.append("file", file);
+async function enviarImagem(){
 
-document.getElementById("resultado").innerHTML = "Analisando imagem...";
+const file = document.getElementById("fileInput").files[0]
 
-const resposta = await fetch("/predict",{
+let formData = new FormData()
+
+formData.append("file", file)
+
+const response = await fetch("/predict",{
 method:"POST",
 body:formData
-});
+})
 
-const dados = await resposta.json();
+const data = await response.json()
 
-document.getElementById("resultado").innerHTML =
-"Total de telhados: " + dados["Total de telhados"] + "<br>" +
-"Telhados de cerâmica: " + dados["Telhados de cerâmica"] + "<br>" +
-"Telhados de brasilit: " + dados["Telhados de brasilit"];
+document.getElementById("resultado").src = data.image
 
-});
-
-let deferredPrompt;
-
-window.addEventListener("beforeinstallprompt", function(e){
-
-e.preventDefault();
-
-deferredPrompt = e;
-
-document.getElementById("installBtn").style.display="block";
-
-});
-
-document.getElementById("installBtn").onclick = async function(){
-
-if(deferredPrompt){
-deferredPrompt.prompt();
 }
 
-};
+/* carregar histórico */
 
-if("serviceWorker" in navigator){
-navigator.serviceWorker.register("/static/sw.js");
+async function carregarHistorico(){
+
+try{
+
+const res = await fetch("/history")
+
+const imagens = await res.json()
+
+const div = document.getElementById("listaHistorico")
+
+div.innerHTML=""
+
+imagens.forEach(function(img){
+
+let imagem = document.createElement("img")
+
+imagem.src = img
+
+div.appendChild(imagem)
+
+})
+
+}catch(e){
+
+console.log("histórico vazio")
+
 }
+
+}
+
+carregarHistorico()
 
 </script>
 
