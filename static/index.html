@@ -182,80 +182,104 @@ Instalar App
 
 <script>
 
-/* trocar abas */
+/* --------- ABAS --------- */
 
 function abrirPagina(nome){
 
-const paginas = document.querySelectorAll(".pagina")
+const paginas = document.querySelectorAll(".pagina");
 
 paginas.forEach(function(p){
-p.style.display="none"
-})
+p.style.display = "none";
+});
 
-document.getElementById(nome).style.display="block"
+document.getElementById(nome).style.display = "block";
 
 }
 
-/* enviar imagem */
+
+/* --------- ENVIAR IMAGEM --------- */
 
 async function enviarImagem(){
 
-const file = document.getElementById("fileInput").files[0]
+const input = document.getElementById("fileInput");
 
-let formData = new FormData()
+if(input.files.length === 0){
+alert("Selecione uma imagem primeiro");
+return;
+}
 
-formData.append("file", file)
+const file = input.files[0];
+
+let formData = new FormData();
+formData.append("file", file);
+
+try{
 
 const response = await fetch("/predict",{
 method:"POST",
 body:formData
-})
+});
 
-const data = await response.json()
+const data = await response.json();
 
-document.getElementById("resultado").src = data.image
+document.getElementById("resultado").src = data.image;
+
+}catch(error){
+
+alert("Erro ao analisar imagem");
 
 }
 
-/* carregar histórico */
+}
+
+
+/* --------- HISTÓRICO --------- */
 
 async function carregarHistorico(){
 
 try{
 
-const res = await fetch("/history")
+const res = await fetch("/history");
+const imagens = await res.json();
 
-const imagens = await res.json()
+const div = document.getElementById("listaHistorico");
 
-const div = document.getElementById("listaHistorico")
+if(!div) return;
 
-div.innerHTML=""
+div.innerHTML = "";
 
 imagens.forEach(function(img){
 
-let imagem = document.createElement("img")
+let imagem = document.createElement("img");
 
-imagem.src = img
+imagem.src = img;
+imagem.style.width = "100%";
+imagem.style.marginBottom = "10px";
 
-div.appendChild(imagem)
+div.appendChild(imagem);
 
-})
+});
 
 }catch(e){
 
-console.log("histórico vazio")
+console.log("histórico vazio");
 
 }
 
 }
 
-carregarHistorico()
 
-/* botão instalar PWA */
+/* --------- BOTÃO INSTALAR --------- */
 
 let deferredPrompt;
+let installBtn;
 
-const installBtn = document.getElementById("installBtn");
+window.addEventListener("DOMContentLoaded", () => {
+
+installBtn = document.getElementById("installBtn");
+
+});
+
 
 window.addEventListener("beforeinstallprompt", (e) => {
 
@@ -263,11 +287,16 @@ e.preventDefault();
 
 deferredPrompt = e;
 
+if(installBtn){
 installBtn.style.display = "block";
+}
 
 });
 
-installBtn.addEventListener("click", async () => {
+
+document.addEventListener("click", async function(e){
+
+if(e.target && e.target.id === "installBtn"){
 
 if(!deferredPrompt) return;
 
@@ -276,20 +305,26 @@ deferredPrompt.prompt();
 const choice = await deferredPrompt.userChoice;
 
 if(choice.outcome === "accepted"){
-
 console.log("App instalado");
-
 }
 
 deferredPrompt = null;
 
+}
+
 });
 
-/* registrar service worker */
+
+/* --------- SERVICE WORKER --------- */
 
 if("serviceWorker" in navigator){
-navigator.serviceWorker.register("/static/sw.js")
+navigator.serviceWorker.register("/static/sw.js");
 }
+
+
+/* --------- CARREGAR HISTÓRICO --------- */
+
+window.onload = carregarHistorico;
 
 </script>
 
