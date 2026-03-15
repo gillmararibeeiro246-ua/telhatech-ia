@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 
 <html lang="pt-br">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>TelhaTech AI</title>
+
+<link rel="manifest" href="/static/manifest.json">
 
 <style>
 
@@ -15,7 +20,7 @@ background:#020c25;
 color:white;
 }
 
-/* layout geral */
+/* layout */
 
 .app{
 display:flex;
@@ -53,7 +58,7 @@ margin-bottom:8px;
 background:#ff7a00;
 }
 
-/* área de conteúdo */
+/* conteúdo */
 
 .conteudo{
 flex:1;
@@ -74,7 +79,7 @@ max-width:600px;
 display:block;
 }
 
-/* botão */
+/* botões */
 
 .botao{
 background:#ff7a00;
@@ -138,6 +143,12 @@ border-radius:10px;
 <br><br>
 
 <button class="botao" onclick="enviarImagem()">Analisar Telhado</button>
+
+<br>
+
+<button id="installBtn" class="botao" style="display:none">
+Instalar App
+</button>
 
 <br><br>
 
@@ -240,7 +251,48 @@ console.log("histórico vazio")
 
 carregarHistorico()
 
+/* botão instalar PWA */
+
+let deferredPrompt;
+
+const installBtn = document.getElementById("installBtn");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+
+e.preventDefault();
+
+deferredPrompt = e;
+
+installBtn.style.display = "block";
+
+});
+
+installBtn.addEventListener("click", async () => {
+
+if(!deferredPrompt) return;
+
+deferredPrompt.prompt();
+
+const choice = await deferredPrompt.userChoice;
+
+if(choice.outcome === "accepted"){
+
+console.log("App instalado");
+
+}
+
+deferredPrompt = null;
+
+});
+
+/* registrar service worker */
+
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("/static/sw.js")
+}
+
 </script>
 
 </body>
 </html>
+
