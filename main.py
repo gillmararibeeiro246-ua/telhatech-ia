@@ -49,3 +49,7 @@ async def predict(file: UploadFile = File(...)):
         "Telhados de cerâmica": ceramica,
         "Telhados de brasilit": brasilit
     }
+
+@app.get("/history")
+def history():
+    return []
