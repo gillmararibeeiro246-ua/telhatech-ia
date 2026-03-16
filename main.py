@@ -22,7 +22,7 @@ async def predict(file: UploadFile = File(...)):
 
     # carregar modelo somente quando analisar
     from ultralytics import YOLO
-    model = YOLO("best.pt")
+    model = YOLO("yolov8n.pt")
 
     contents = await file.read()
     image = Image.open(io.BytesIO(contents))
