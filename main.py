@@ -1,21 +1,17 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from ultralytics import YOLO
 from PIL import Image
 import io
 
 app = FastAPI()
-
-# carregar o modelo apenas uma vez
-model = YOLO("best.pt")
 
 # permitir acessar arquivos da pasta static
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # rota da página inicial
-@app.api_route("/", methods=["GET","HEAD"])
+@app.api_route("/", methods=["GET", "HEAD"])
 def home():
     return FileResponse("static/index.html")
 
@@ -24,8 +20,11 @@ def home():
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
 
-    contents = await file.read()
+    # carregar modelo somente quando analisar
+    from ultralytics import YOLO
+    model = YOLO("best.pt")
 
+    contents = await file.read()
     image = Image.open(io.BytesIO(contents))
 
     results = model(image)
@@ -50,6 +49,8 @@ async def predict(file: UploadFile = File(...)):
         "Telhados de brasilit": brasilit
     }
 
+
+# rota de histórico
 @app.get("/history")
 def history():
     return []
