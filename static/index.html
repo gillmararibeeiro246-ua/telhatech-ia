@@ -145,7 +145,7 @@ border-radius:10px;
 <button class="botao" onclick="enviarImagem()">Analisar Telhado</button>
 
 <br>
-
+<div id="resultado" style="margin-top:20px; font-size:18px;"></div>
 <button id="installBtn" class="botao" style="display:none">
 Instalar App
 </button>
@@ -222,7 +222,10 @@ body:formData
 
 const data = await response.json();
 
-document.getElementById("resultado").src = data.image;
+document.getElementById("resultado").innerHTML =
+"Total de telhados: " + data["Total de telhados"] +
+"<br>Telhados de cerâmica: " + data["Telhados de cerâmica"] +
+"<br>Telhados de brasilit: " + data["Telhados de brasilit"];
 
 }catch(error){
 
